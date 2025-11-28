@@ -3,16 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DermoAnalyst Pro: Comparative Analysis</title>
+    <title>DermaAnalyst Pro: Custom Formula Analyzer</title>
     
-    <!-- Chosen Palette: Warm Neutrals & Clinical Calm. Background: Stone-50. Text: Stone-800. -->
+    <!-- Palette: Stone-50 background, Stone-800 text. Accents: Teal (Analysis), Rose (Risk), Blue/Green/Purple (Reference). -->
     
-    <!-- Application Structure Plan: 
-         - Multi-language Support: Dynamic rendering of text content based on 'currentLang' state.
-         - Ingredient Database: Expanded to include bilingual descriptions (desc_en, desc_es).
-         - Comparator Logic: Added specific filters for Unique Ch1 and Ch2.
-    -->
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -56,9 +50,29 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
         }
 
-        /* Smooth fade for lang switch */
         .fade-text {
             transition: opacity 0.2s ease-in-out;
+        }
+        
+        /* Custom Input Styles for Analysis */
+        textarea:focus {
+            box-shadow: 0 0 0 2px rgba(94, 234, 212, 0.5); /* teal-300 ring */
+            border-color: #14b8a6;
+        }
+
+        /* Scrollbar for lists */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f5f5f4; 
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #d6d3d1; 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #a8a29e; 
         }
     </style>
 </head>
@@ -70,20 +84,22 @@
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <i class="fas fa-flask text-stone-600 text-xl mr-2"></i>
-                    <span class="font-bold text-xl tracking-tight text-stone-800">DermaAnalyst Pro</span>
+                    <span class="font-bold text-xl tracking-tight text-stone-800">DermaAnalyst <span class="text-teal-600">Pro</span></span>
                 </div>
                 
                 <!-- Desktop Nav -->
                 <div class="hidden md:flex space-x-8 items-center" id="desktop-nav">
-                    <button onclick="navigateTo('dashboard')" class="nav-btn tab-active px-3 py-2 text-sm font-medium transition-colors" data-i18n="nav_dashboard">Dashboard</button>
-                    <button onclick="navigateTo('compare')" class="nav-btn tab-inactive px-3 py-2 text-sm font-medium transition-colors" data-i18n="nav_compare">Comparator</button>
-                    <button onclick="navigateTo('details')" class="nav-btn tab-inactive px-3 py-2 text-sm font-medium transition-colors" data-i18n="nav_encyclopedia">Encyclopedia</button>
-                    <button onclick="navigateTo('verdict')" class="nav-btn tab-inactive px-3 py-2 text-sm font-medium transition-colors" data-i18n="nav_verdict">Verdict</button>
+                    <button onclick="navigateTo('dashboard')" data-target="dashboard" class="nav-btn tab-active px-3 py-2 text-sm font-medium transition-colors" data-i18n="nav_dashboard">Dashboard</button>
+                    <!-- New Button -->
+                    <button onclick="navigateTo('analyze')" data-target="analyze" class="nav-btn tab-inactive px-3 py-2 text-sm font-medium transition-colors text-teal-700 hover:text-teal-900" data-i18n="nav_analyze_yours">Analyze Yours</button>
+                    <button onclick="navigateTo('compare')" data-target="compare" class="nav-btn tab-inactive px-3 py-2 text-sm font-medium transition-colors" data-i18n="nav_compare">Comparator</button>
+                    <button onclick="navigateTo('details')" data-target="details" class="nav-btn tab-inactive px-3 py-2 text-sm font-medium transition-colors" data-i18n="nav_encyclopedia">Encyclopedia</button>
+                    <button onclick="navigateTo('verdict')" data-target="verdict" class="nav-btn tab-inactive px-3 py-2 text-sm font-medium transition-colors" data-i18n="nav_verdict">Verdict</button>
                 </div>
 
                 <!-- Right Side: Lang & Mobile Menu -->
                 <div class="flex items-center space-x-4">
-                    <button onclick="toggleLanguage()" class="text-sm font-bold text-stone-600 border border-stone-300 px-2 py-1 rounded hover:bg-stone-100">
+                    <button onclick="toggleLanguage()" class="text-sm font-bold text-stone-600 border border-stone-300 px-2 py-1 rounded hover:bg-stone-100 transition">
                         <i class="fas fa-globe mr-1"></i> <span id="lang-display">ES</span>
                     </button>
                     <div class="md:hidden">
@@ -97,10 +113,11 @@
         <!-- Mobile Nav Menu -->
         <div class="md:hidden hidden bg-stone-50 border-t border-stone-200" id="mobile-nav">
             <div class="px-2 pt-2 pb-3 space-y-1">
-                <button onclick="navigateTo('dashboard')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-stone-700 hover:bg-stone-200" data-i18n="nav_dashboard">Dashboard</button>
-                <button onclick="navigateTo('compare')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-stone-700 hover:bg-stone-200" data-i18n="nav_compare">Comparator</button>
-                <button onclick="navigateTo('details')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-stone-700 hover:bg-stone-200" data-i18n="nav_encyclopedia">Encyclopedia</button>
-                <button onclick="navigateTo('verdict')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-stone-700 hover:bg-stone-200" data-i18n="nav_verdict">Verdict</button>
+                <button onclick="navigateTo('dashboard')" data-target="dashboard" class="nav-btn block w-full text-left px-3 py-2 rounded-md text-base font-medium text-stone-700 hover:bg-stone-200" data-i18n="nav_dashboard">Dashboard</button>
+                <button onclick="navigateTo('analyze')" data-target="analyze" class="nav-btn block w-full text-left px-3 py-2 rounded-md text-base font-medium text-teal-700 hover:bg-stone-200" data-i18n="nav_analyze_yours">Analyze Yours</button>
+                <button onclick="navigateTo('compare')" data-target="compare" class="nav-btn block w-full text-left px-3 py-2 rounded-md text-base font-medium text-stone-700 hover:bg-stone-200" data-i18n="nav_compare">Comparator</button>
+                <button onclick="navigateTo('details')" data-target="details" class="nav-btn block w-full text-left px-3 py-2 rounded-md text-base font-medium text-stone-700 hover:bg-stone-200" data-i18n="nav_encyclopedia">Encyclopedia</button>
+                <button onclick="navigateTo('verdict')" data-target="verdict" class="nav-btn block w-full text-left px-3 py-2 rounded-md text-base font-medium text-stone-700 hover:bg-stone-200" data-i18n="nav_verdict">Verdict</button>
             </div>
         </div>
     </nav>
@@ -129,7 +146,7 @@
                     </div>
                 </div>
 
-                <!-- Chart 2: Hardness/Potential Irritation -->
+                <!-- Chart 2: Irritation -->
                 <div class="bg-white p-6 rounded-xl card-shadow flex flex-col">
                     <h3 class="text-lg font-semibold text-stone-700 mb-2" data-i18n="chart_irritation_title">Chemical Load & Irritation</h3>
                     <p class="text-xs text-stone-500 mb-4" data-i18n="chart_irritation_desc">Score based on harsh surfactants, controversial preservatives, and allergens.</p>
@@ -142,7 +159,6 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-                <!-- Key Stats Cards -->
                 <div class="bg-stone-100 p-4 rounded-lg border-l-4 border-blue-500">
                     <h4 class="font-bold text-stone-700">Shampoo 1</h4>
                     <p class="text-sm text-stone-600 mt-1" data-i18n="card_s1"><strong>Chemical Complexity:</strong> High. Mixes many surfactants and silicones. Contains strong sulfates (SLS+SLES).</p>
@@ -158,6 +174,48 @@
             </div>
         </section>
 
+        <!-- SECTION: ANALYZE YOURS (NEW FEATURE) -->
+        <section id="analyze" class="hidden space-y-8 animate-fade-in">
+            <div class="bg-white p-8 rounded-xl card-shadow border-t-4 border-teal-500">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold text-stone-800" data-i18n="analyze_title">Analyze Your Shampoo</h2>
+                    <p class="text-stone-600 mt-2" data-i18n="analyze_desc">Paste your ingredient list (INCI) below. Our expanded database will detect sulfates, silicones, and high-risk allergens.</p>
+                </div>
+                
+                <div class="max-w-3xl mx-auto space-y-4">
+                    <textarea id="userIngredients" rows="6" 
+                        class="w-full p-4 border border-stone-300 rounded-lg text-sm font-mono text-stone-700 focus:outline-none transition"
+                        placeholder="Aqua, Sodium Laureth Sulfate, Cocamidopropyl Betaine..."></textarea>
+                    
+                    <button onclick="analyzeUserShampoo()" 
+                        class="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg shadow transition transform active:scale-95">
+                        <i class="fas fa-microscope mr-2"></i> <span data-i18n="btn_analyze">Analyze Formula</span>
+                    </button>
+                </div>
+
+                <!-- Analysis Result Container -->
+                <div id="userAnalysisResult" class="hidden mt-8 border-t border-stone-100 pt-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-bold text-teal-800 mb-4" data-i18n="result_verdict">AI Verdict</h3>
+                            <div id="dynamicVerdictText" class="space-y-3 text-sm text-stone-700 leading-relaxed bg-stone-50 p-4 rounded-lg">
+                                <!-- JS Generated Content -->
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-stone-800 mb-4" data-i18n="result_composition">Detected Profile</h3>
+                            <ul id="detectedIngredientsList" class="space-y-2 text-xs h-64 overflow-y-auto pr-2 custom-scrollbar">
+                                <!-- JS Generated List -->
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="mt-6 p-4 bg-teal-50 text-teal-800 rounded-lg text-center text-sm font-semibold">
+                        <i class="fas fa-chart-bar mr-2"></i> <span data-i18n="result_chart_hint">Your shampoo has been added to the Dashboard Charts and Comparator!</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- SECTION 2: COMPARATOR -->
         <section id="compare" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-xl card-shadow">
@@ -168,7 +226,6 @@
                     </p>
                 </div>
 
-                <!-- Filters -->
                 <div class="flex flex-wrap gap-2 mb-6">
                     <button onclick="filterComparison('all')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-stone-800 text-white transition shadow-sm hover:bg-stone-700" data-i18n="btn_all">All Ingredients</button>
                     <button onclick="filterComparison('shared_all')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-stone-200 text-stone-700 transition hover:bg-stone-300" data-i18n="btn_shared">Shared (Base)</button>
@@ -176,29 +233,30 @@
                     <button onclick="filterComparison('unique_1')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800 transition hover:bg-blue-200" data-i18n="btn_u1">Exclusive Ch 1</button>
                     <button onclick="filterComparison('unique_2')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800 transition hover:bg-green-200" data-i18n="btn_u2">Exclusive Ch 2</button>
                     <button onclick="filterComparison('unique_3')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-purple-100 text-purple-800 transition hover:bg-purple-200" data-i18n="btn_u3">Exclusive Ch 3</button>
+                    <!-- User Filter (Hidden initially) -->
+                    <button onclick="filterComparison('user')" id="btnUserFilter" class="filter-btn hidden px-4 py-2 rounded-full text-sm font-medium bg-teal-100 text-teal-800 transition hover:bg-teal-200 border border-teal-200" data-i18n="btn_user_exclusive">My Shampoo Exclusive</button>
                 </div>
 
-                <!-- Comparison Table Area -->
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-stone-200">
                         <thead class="bg-stone-50">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">INCI Name</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">INCI</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider" data-i18n="col_function">Function</th>
                                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-stone-500 uppercase tracking-wider">Ch 1</th>
                                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-stone-500 uppercase tracking-wider">Ch 2</th>
                                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-stone-500 uppercase tracking-wider">Ch 3</th>
+                                <!-- User Column (Hidden initially) -->
+                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-teal-600 uppercase tracking-wider hidden" id="colUserHeader">My Sh</th>
                             </tr>
                         </thead>
-                        <tbody id="comparisonTableBody" class="bg-white divide-y divide-stone-200 text-sm">
-                            <!-- JS Generated Rows -->
-                        </tbody>
+                        <tbody id="comparisonTableBody" class="bg-white divide-y divide-stone-200 text-sm"></tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION 3: ENCYCLOPEDIA -->
+        <!-- SECTION 3: ENCYCLOPEDIA (Visuals Restored) -->
         <section id="details" class="hidden space-y-6">
             <div class="max-w-4xl mx-auto text-center mb-8">
                 <h2 class="text-2xl font-bold text-stone-800" data-i18n="ency_title">Toxicological Encyclopedia</h2>
@@ -211,13 +269,12 @@
                     <i class="fas fa-search absolute left-3 top-3 text-stone-400"></i>
                 </div>
             </div>
-
             <div id="ingredientCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- JS populated cards -->
+                <!-- JS populated cards with original style -->
             </div>
         </section>
 
-        <!-- SECTION 4: VERDICT -->
+        <!-- SECTION 4: VERDICT (Original Restored) -->
         <section id="verdict" class="hidden space-y-8">
             <div class="bg-white p-8 rounded-xl card-shadow border-t-4 border-stone-600">
                 <h2 class="text-3xl font-bold text-stone-800 mb-6" data-i18n="verd_title">Diagnosis & Usage Projection</h2>
@@ -294,180 +351,182 @@
 
     <footer class="bg-stone-100 py-6 border-t border-stone-200 mt-auto">
         <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-stone-500 text-sm">Generated by DermaAnalyst AI • Comprehensive INCI Analysis</p>
+            <p class="text-stone-500 text-sm">Generated by DermaAnalyst AI • Expanded Database v4.0</p>
         </div>
     </footer>
 
     <!-- LOGIC -->
     <script>
         // --- TRANSLATION DATA ---
-        let currentLang = 'en'; // Default Language
+        let currentLang = 'en'; 
 
         const translations = {
             en: {
-                nav_dashboard: "Dashboard",
-                nav_compare: "Comparator",
-                nav_encyclopedia: "Encyclopedia",
-                nav_verdict: "Verdict",
-                dash_title: "Comprehensive Formula Analysis",
-                dash_intro: "We have decoded 100% of the listed ingredients, normalizing nomenclatures. The analysis reveals three clear profiles: <strong>Synthetic Detergency (Ch1)</strong>, <strong>Acidic Botanical Extracts (Ch2)</strong>, and <strong>Bio-Active Nutrition (Ch3)</strong>.",
-                chart_composition_title: "Functional Footprint",
-                chart_composition_desc: "What does each formula invest in? (Comparing Shampoo 3 vs Average).",
-                chart_irritation_title: "Chemical Load & Irritation",
-                chart_irritation_desc: "Score based on harsh surfactants, controversial preservatives, and allergens.",
+                // Navigation
+                nav_dashboard: "Dashboard", nav_analyze_yours: "Analyze Yours", nav_compare: "Comparator", nav_encyclopedia: "Encyclopedia", nav_verdict: "Verdict",
+                
+                // Dashboard
+                dash_title: "Comprehensive Formula Analysis", dash_intro: "We have decoded 100% of the listed ingredients, normalizing nomenclatures. The analysis reveals three clear profiles: <strong>Synthetic Detergency (Ch1)</strong>, <strong>Acidic Botanical Extracts (Ch2)</strong>, and <strong>Bio-Active Nutrition (Ch3)</strong>.",
+                chart_composition_title: "Functional Footprint", chart_composition_desc: "What does each formula invest in? (Comparing Shampoo 3 vs Average).",
+                chart_irritation_title: "Chemical Load & Irritation", chart_irritation_desc: "Score based on harsh surfactants, controversial preservatives, and allergens.",
                 card_s1: "<strong>Chemical Complexity:</strong> High. Mixes many surfactants and silicones. Contains strong sulfates (SLS+SLES).",
                 card_s2: "<strong>Hidden Risk:</strong> Appears natural (fruits), but contains <em>Cocamide DEA</em> and <em>DMDM Hydantoin</em> (formaldehyde releaser).",
                 card_s3: "<strong>Bio-Actives:</strong> Leader in real active principles (Vitamins, Ceramides, Amino Acids) beyond cleaning.",
+                
+                // Analyze Yours
+                analyze_title: "Analyze Your Shampoo", analyze_desc: "Paste your ingredient list (INCI) below. Our expanded database will detect sulfates, silicones, and high-risk allergens.", btn_analyze: "Analyze Formula",
+                result_verdict: "AI Verdict", result_composition: "Detected Profile", result_chart_hint: "Your shampoo has been added to the Dashboard Charts and Comparator!",
+                
+                // Comparator
                 comp_title: "Cross-Formula Ingredient Matrix",
-                comp_intro: "This interactive tool provides a granular view of the chemical landscape. Use the filters below to isolate shared base components versus unique active ingredients, helping you understand exactly what differentiates one formula from another.",
-                btn_all: "All Ingredients",
-                btn_shared: "Shared (Base)",
-                btn_actives: "Actives Only",
-                btn_u1: "Exclusive Ch 1",
-                btn_u2: "Exclusive Ch 2",
-                btn_u3: "Exclusive Ch 3",
+                comp_intro: "This interactive tool provides a granular view of the chemical landscape. Use the filters below to isolate shared base components versus unique active ingredients.",
+                btn_all: "All Ingredients", btn_shared: "Shared (Base)", btn_actives: "Actives Only", btn_u1: "Exclusive Ch 1", btn_u2: "Exclusive Ch 2", btn_u3: "Exclusive Ch 3", btn_user_exclusive: "My Shampoo Exclusive",
                 col_function: "Function",
-                ency_title: "Toxicological Encyclopedia",
-                ency_intro: "Deep dive into every molecule. We identify allergens, preservatives, and real actives.",
-                verd_title: "Diagnosis & Usage Projection",
-                tag_s1: "Potent Detergent",
-                tag_s2: "Acidic & Controversial",
-                tag_s3: "Structural Nutrition",
-                analysis_title: "Deep Analysis:",
+
+                // Encyclopedia
+                ency_title: "Toxicological Encyclopedia", ency_intro: "Deep dive into every molecule. We identify allergens, preservatives, and real actives.",
+                
+                // Verdict
+                verd_title: "Diagnosis & Usage Projection", tag_s1: "Potent Detergent", tag_s2: "Acidic & Controversial", tag_s3: "Structural Nutrition",
+                analysis_title: "Deep Analysis:", verdict_label: "Verdict:", winner_label: "WINNER:",
                 analysis_s1: "Bases its formula on the 'old school': <strong>SLS + SLES</strong>. It is extremely effective at stripping grease, but harsh. Uses a high amount of texture agents (Salt, Xylenesulfonate) and silicones (Dimethicone, Dimethiconol) to 'mask' the dryness caused by sulfates.",
-                verdict_label: "Verdict:",
                 verdict_s1: "Use only if you have oily dandruff (due to Piroctone Olamine). Not suitable for Curly method or sensitive scalps. Long term may dehydrate and thin the fiber.",
                 analysis_s2: "Has a very interesting base of <strong>fruit extracts and vinegar</strong> for shine (acidic effect). However, the formula is tainted by the use of <strong>Cocamide DEA</strong> (potential carcinogen in California) and <strong>DMDM Hydantoin</strong> (formaldehyde releaser).",
                 verdict_s2: "Gives spectacular shine in the short term, but its preservatives are the worst on the list. Recommended only for sporadic use if you have no skin allergies.",
                 analysis_s3: "This shampoo contains ingredients that actually penetrate: <strong>Amino acids</strong> (Arginine, Lysine) to fill gaps, <strong>Ceramides</strong> to glue the cuticle, and a vitamin cocktail (B3, B5, B7, C). It uses sulfates, but compensates with high-quality cationic polymers (Polyquaternium-10).",
-                winner_label: "WINNER:",
                 verdict_s3: "It is the only one that treats hair from within. Long term, it will fortify the strand reducing breakage."
             },
             es: {
-                nav_dashboard: "Resumen",
-                nav_compare: "Comparador",
-                nav_encyclopedia: "Enciclopedia",
-                nav_verdict: "Veredicto",
-                dash_title: "Análisis Integral de Fórmulas",
-                dash_intro: "Hemos decodificado el 100% de los ingredientes listados, normalizando nomenclaturas. El análisis revela tres perfiles claros: <strong>Detergencia Sintética (Ch1)</strong>, <strong>Extractos Botánicos Ácidos (Ch2)</strong> y <strong>Nutrición Bio-Activa (Ch3)</strong>.",
-                chart_composition_title: "Huella Funcional",
-                chart_composition_desc: "¿En qué invierte cada fórmula? (Comparativa de Champú 3 vs Promedio).",
-                chart_irritation_title: "Carga Química & Irritación",
-                chart_irritation_desc: "Puntuación basada en tensioactivos agresivos, conservantes polémicos y alérgenos.",
+                // Navigation
+                nav_dashboard: "Resumen", nav_analyze_yours: "Analiza el Tuyo", nav_compare: "Comparador", nav_encyclopedia: "Enciclopedia", nav_verdict: "Veredicto",
+                
+                // Dashboard
+                dash_title: "Análisis Integral de Fórmulas", dash_intro: "Hemos decodificado el 100% de los ingredientes listados, normalizando nomenclaturas. El análisis revela tres perfiles claros: <strong>Detergencia Sintética (Ch1)</strong>, <strong>Extractos Botánicos Ácidos (Ch2)</strong> y <strong>Nutrición Bio-Activa (Ch3)</strong>.",
+                chart_composition_title: "Huella Funcional", chart_composition_desc: "¿En qué invierte cada fórmula? (Comparativa de Champú 3 vs Promedio).",
+                chart_irritation_title: "Carga Química & Irritación", chart_irritation_desc: "Puntuación basada en tensioactivos agresivos, conservantes polémicos y alérgenos.",
                 card_s1: "<strong>Complejidad Química:</strong> Alta. Mezcla muchos surfactantes y siliconas. Contiene sulfatos fuertes (SLS+SLES).",
                 card_s2: "<strong>Riesgo Oculto:</strong> Parece natural (frutas), pero contiene <em>Cocamide DEA</em> y <em>DMDM Hydantoin</em> (liberador de formol).",
                 card_s3: "<strong>Bio-Activos:</strong> Líder en principios activos reales (Vitaminas, Ceramidas, Aminoácidos) más allá de la limpieza.",
+
+                // Analyze Yours
+                analyze_title: "Analiza tu Champú", analyze_desc: "Pega tu lista INCI a continuación. Detectaremos sulfatos, siliconas y riesgos.", btn_analyze: "Analizar Fórmula",
+                result_verdict: "Veredicto IA", result_composition: "Perfil Detectado", result_chart_hint: "¡Tu champú se ha añadido a las Gráficas y Comparador!",
+
+                // Comparator
                 comp_title: "Matriz de Ingredientes Cruzada",
-                comp_intro: "Esta herramienta interactiva ofrece una visión granular del paisaje químico. Utilice los filtros a continuación para aislar componentes base compartidos frente a ingredientes activos únicos, ayudándole a entender exactamente qué diferencia a una fórmula de otra.",
-                btn_all: "Todos",
-                btn_shared: "Comunes (Base)",
-                btn_actives: "Solo Activos",
-                btn_u1: "Exclusivos Ch 1",
-                btn_u2: "Exclusivos Ch 2",
-                btn_u3: "Exclusivos Ch 3",
+                comp_intro: "Esta herramienta interactiva ofrece una visión granular del paisaje químico. Utilice los filtros para aislar componentes base o exclusivos.",
+                btn_all: "Todos", btn_shared: "Comunes (Base)", btn_actives: "Solo Activos", btn_u1: "Exclusivos Ch 1", btn_u2: "Exclusivos Ch 2", btn_u3: "Exclusivos Ch 3", btn_user_exclusive: "Exclusivos Mi Champú",
                 col_function: "Función Técnica",
-                ency_title: "Enciclopedia Toxicológica",
-                ency_intro: "Detalle profundo de cada molécula. Identificamos alérgenos, conservantes y activos reales.",
-                verd_title: "Diagnóstico y Proyección de Uso",
-                tag_s1: "Detergente Potente",
-                tag_s2: "Ácido & Polémico",
-                tag_s3: "Nutrición Estructural",
-                analysis_title: "Análisis Profundo:",
+
+                // Encyclopedia
+                ency_title: "Enciclopedia Toxicológica", ency_intro: "Detalle profundo de cada molécula. Identificamos alérgenos, conservantes y activos reales.",
+                
+                // Verdict
+                verd_title: "Diagnóstico y Proyección de Uso", tag_s1: "Detergente Potente", tag_s2: "Ácido & Polémico", tag_s3: "Nutrición Estructural",
+                analysis_title: "Análisis Profundo:", verdict_label: "Veredicto:", winner_label: "GANADOR:",
                 analysis_s1: "Basa su fórmula en la 'vieja escuela': <strong>SLS + SLES</strong>. Es extremadamente efectivo quitando grasa, pero agresivo. Usa una gran cantidad de agentes de textura (Sal, Xylenesulfonate) y siliconas (Dimethicone, Dimethiconol) para 'maquillar' la sequedad que provocan los sulfatos.",
-                verdict_label: "Veredicto:",
                 verdict_s1: "Úselo solo si tiene caspa grasa (por la Piroctona Olamina). No apto para método Curly ni cueros cabelludos sensibles. A largo plazo puede deshidratar y afinar la fibra.",
                 analysis_s2: "Tiene una base muy interesante de <strong>extractos frutales y vinagre</strong> para dar brillo (efecto ácido). Sin embargo, la fórmula queda manchada por el uso de <strong>Cocamide DEA</strong> (potencial cancerígeno en California) y <strong>DMDM Hydantoin</strong> (liberador de formol).",
                 verdict_s2: "Da un brillo espectacular a corto plazo, pero sus conservantes son los peores de la lista. Recomendado solo para uso esporádico si no tienes alergias cutáneas.",
                 analysis_s3: "Este champú contiene ingredientes que realmente penetran: <strong>Aminoácidos</strong> (Arginina, Lisina) para rellenar huecos, <strong>Ceramidas</strong> para pegar la cutícula y un cóctel vitamínico (B3, B5, B7, C). Usa sulfatos, pero los compensa con polímeros catiónicos de alta calidad (Polyquaternium-10).",
-                winner_label: "GANADOR:",
                 verdict_s3: "Es el único que trata el cabello desde dentro. A largo plazo, fortificará la hebra reduciendo la rotura."
             }
         };
 
-        // --- COMPLETE INCI DATABASE (Bilingual) ---
+        // --- EXPANDED INCI DATABASE ---
         const ingredientDB = {
-            // Surfactants
-            "Sodium Laureth Sulfate": { type: "Cleaning", desc_en: "SLES. Primary anionic surfactant. Cleans effectively, emulsifies grease. Less irritating than SLS.", desc_es: "SLES. Tensioactivo aniónico primario. Limpia eficazmente, menos irritante que el SLS.", risk: "Medio" },
-            "Sodium Lauryl Sulfate": { type: "Cleaning", desc_en: "SLS. Very potent detergent and degreaser. High irritation potential for sensitive skin.", desc_es: "SLS. Detergente muy potente. Alto potencial de irritación en pieles sensibles.", risk: "Alto" },
-            "Cocamidopropyl Betaine": { type: "Cleaning", desc_en: "Amphoteric surfactant derived from coconut. Softens sulfate harshness and boosts foam.", desc_es: "Tensioactivo anfótero derivado del coco. Suaviza la agresividad de los sulfatos.", risk: "Bajo" },
-            "Disodium Cocoamphodiacetate": { type: "Cleaning", desc_en: "Very mild surfactant, often used in baby products. Cleans without stripping.", desc_es: "Tensioactivo muy suave, usado en productos para bebés. Limpia sin resecar.", risk: "Bajo" },
-            "Coco-Glucoside": { type: "Cleaning", desc_en: "Non-ionic vegetable surfactant (sugar & coconut). Very mild and biodegradable.", desc_es: "Tensioactivo no iónico vegetal. Muy suave y biodegradable.", risk: "Nulo" },
-            "TEA-Dodecylbenzenesulfonate": { type: "Cleaning", desc_en: "Anionic surfactant. Often part of silicone emulsions to keep them stable.", desc_es: "Surfactante aniónico. A menudo parte de emulsiones de silicona.", risk: "Medio" },
-            "Sodium Xylenesulfonate": { type: "Cleaning", desc_en: "Hydrotrope. Helps dissolve other ingredients and clears the formula. Can be slightly drying.", desc_es: "Hidrótropo. Ayuda a disolver ingredientes. Puede resecar ligeramente.", risk: "Bajo" },
-            "Cocamide DEA": { type: "Thickener", desc_en: "Coconut Diethanolamine. Foam stabilizer. Linked to nitrosamine formation (carcinogenic).", desc_es: "Espesante. Vinculado a formación de nitrosaminas (cancerígenas).", risk: "Alto" },
-
-            // Conditioners & Silicones
-            "Dimethicone": { type: "Conditioner", desc_en: "Main silicone. Creates a protective film, adds softness/shine, but non-water soluble (buildup risk).", desc_es: "Silicona principal. Crea un film protector, pero riesgo de acumulación.", risk: "Medio" },
-            "Dimethiconol": { type: "Conditioner", desc_en: "Silicone gum. Visually repairs split ends and provides silky touch.", desc_es: "Goma de silicona. Repara puntas abiertas visualmente.", risk: "Bajo" },
-            "Guar Hydroxypropyltrimonium Chloride": { type: "Conditioner", desc_en: "Cationic Guar derivative. Neutralizes negative charge of damaged hair, removing frizz.", desc_es: "Derivado catiónico del Guar. Elimina frizz neutralizando carga negativa.", risk: "Bajo" },
-            "Polyquaternium-7": { type: "Conditioner", desc_en: "Antistatic polymer. Excellent detangler without much weigh-down.", desc_es: "Polímero antiestático. Aporta excelente desenredado sin apelmazar.", risk: "Bajo" },
-            "Polyquaternium-10": { type: "Conditioner", desc_en: "Cationic cellulose. Adheres to damaged hair zones (smart repair) to soften.", desc_es: "Celulosa catiónica. Se adhiere a zonas dañadas para suavizar.", risk: "Bajo" },
-            "Glyceryl Oleate": { type: "Conditioner", desc_en: "Biomimetic lipid. Restores skin's natural lipid layer after washing.", desc_es: "Lípido biomimético. Restaura la capa grasa natural.", risk: "Nulo" },
-            "Trideceth-10": { type: "Emulsifier", desc_en: "Helps mix silicones with water.", desc_es: "Ayuda a mezclar siliconas con agua.", risk: "Bajo" },
-            "PPG-6": { type: "Emollient", desc_en: "Polypropylene glycol. Skin conditioning agent and solvent.", desc_es: "Agente acondicionador de la piel y solvente.", risk: "Bajo" },
-
-            // Actives
-            "Piroctone Olamine": { type: "Active", desc_en: "Specific antifungal. Eliminates Malassezia fungus causing dandruff.", desc_es: "Antifúngico específico. Elimina el hongo causante de la caspa.", risk: "Bajo" },
-            "Aloe Barbadensis Leaf Juice": { type: "Active", desc_en: "Aloe Vera. Soothing, hydrating, and regenerating for the scalp.", desc_es: "Aloe Vera. Calmante e hidratante para el cuero cabelludo.", risk: "Nulo" },
-            "Tocopheryl Acetate": { type: "Active", desc_en: "Vitamin E. Antioxidant protecting natural oils from rancidity.", desc_es: "Vitamina E. Antioxidante que protege aceites naturales.", risk: "Nulo" },
-            "Niacinamide": { type: "Active", desc_en: "Vitamin B3. Anti-inflammatory, stimulates circulation and protein synthesis.", desc_es: "Vitamina B3. Antiinflamatorio, estimula circulación.", risk: "Nulo" },
-            "Biotin": { type: "Active", desc_en: "Vitamin B7/H. Essential for keratin structure. Strengthens fine hair.", desc_es: "Vitamina B7. Clave para la queratina. Fortalece cabello fino.", risk: "Nulo" },
-            "Panthenol": { type: "Active", desc_en: "Pro-Vitamin B5. Penetrates cuticle, retains water, and adds volume.", desc_es: "Pro-Vitamina B5. Penetra la cutícula, retiene agua y da volumen.", risk: "Nulo" },
-            "Arginine": { type: "Active", desc_en: "Vasodilator amino acid. Improves follicle blood flow and reinforces fiber.", desc_es: "Aminoácido vasodilatador. Mejora riego en folículo.", risk: "Nulo" },
-            "Lysine HCl": { type: "Active", desc_en: "Essential amino acid. Helps in collagen formation and repair.", desc_es: "Aminoácido esencial. Ayuda en formación de colágeno.", risk: "Nulo" },
-            "Ascorbic Acid": { type: "Active", desc_en: "Vitamin C. Antioxidant and pH regulator. Adds shine.", desc_es: "Vitamina C. Antioxidante y regulador de pH.", risk: "Nulo" },
-            "Ceramide NG": { type: "Active", desc_en: "Synthetic ceramide. Lipid 'cement' that binds damaged hair scales.", desc_es: "Ceramida. Cemento lipídico que une escamas del cabello.", risk: "Nulo" },
-            "Hydrolyzed Ceratonia Siliqua Seed Extract": { type: "Active", desc_en: "Carob extract. Rich in peptides, vegetal alternative to collagen.", desc_es: "Extracto de Algarrobo. Alternativa vegetal al colágeno.", risk: "Nulo" },
-            "Prunus Amygdalus Dulcis Oil": { type: "Active", desc_en: "Sweet Almond Oil. Emollient rich in fatty acids.", desc_es: "Aceite de Almendras Dulces. Emoliente rico.", risk: "Nulo" },
-            "Cocos Nucifera Fruit Juice": { type: "Active", desc_en: "Coconut Water. Light hydrator rich in minerals.", desc_es: "Agua de Coco. Hidratante ligero rico en minerales.", risk: "Nulo" },
-            "Prunus Armeniaca Fruit Extract": { type: "Active", desc_en: "Apricot Extract. Conditioning and antioxidant.", desc_es: "Extracto de Albaricoque. Acondicionador y antioxidante.", risk: "Nulo" },
-            "Prunus Persica Fruit Extract": { type: "Active", desc_en: "Peach Extract. Hydrating.", desc_es: "Extracto de Melocotón. Hidratante.", risk: "Nulo" },
-            "Pyrus Malus Fruit Extract": { type: "Active", desc_en: "Apple Extract. Contains mild AHAs that provide shine.", desc_es: "Extracto de Manzana. Contiene AHAs suaves para brillo.", risk: "Nulo" },
-            "Acetum": { type: "Active", desc_en: "Vinegar. Natural acetic acid. Closes cuticles via low pH, mirror shine.", desc_es: "Vinagre. Cierra cutículas por pH bajo, brillo espejo.", risk: "Bajo" },
-            "Zea Mays Starch": { type: "Absorbent", desc_en: "Corn starch. Absorbs excess grease and gives silky texture.", desc_es: "Almidón de maíz. Absorbe grasa y da textura sedosa.", risk: "Nulo" },
-
-            // Solvents & Controls
-            "Aqua": { type: "Solvent", desc_en: "Purified water. Product base.", desc_es: "Agua purificada. Base del producto.", risk: "Nulo" },
-            "Sodium Chloride": { type: "Control", desc_en: "Common salt. Thickens sulfate systems. Can be drying.", desc_es: "Sal común. Espesa sistemas con sulfatos. Puede resecar.", risk: "Bajo" },
-            "Glycerin": { type: "Humectant", desc_en: "Glycerin. Classic humectant, attracts moisture from air.", desc_es: "Glicerina. Humectante clásico, atrae humedad.", risk: "Nulo" },
-            "Citric Acid": { type: "Control", desc_en: "Adjusts pH to ~5.5. Mild chelator.", desc_es: "Ajusta el pH a ~5.5.", risk: "Nulo" },
-            "Sodium Hydroxide": { type: "Control", desc_en: "Caustic soda. Alkaline pH adjuster (used in tiny amounts).", desc_es: "Sosa Cáustica. Ajustador de pH alcalino.", risk: "Medio" },
-            "Sodium Citrate": { type: "Control", desc_en: "Buffer. Keeps pH stable.", desc_es: "Buffer. Mantiene el pH estable.", risk: "Nulo" },
-            "Sodium Lactate": { type: "Humectant", desc_en: "Lactic acid salt. Great natural moisturizer (NMF).", desc_es: "Sal del ácido láctico. Gran humectante natural.", risk: "Nulo" },
-            "Glycol Distearate": { type: "Control", desc_en: "Pearling agent. Gives the white pearlescent look.", desc_es: "Agente perlante. Da aspecto nacarado.", risk: "Nulo" },
-            "Tetrasodium EDTA": { type: "Control", desc_en: "Chelator. Traps hard water metals.", desc_es: "Quelante. Atrapa metales del agua dura.", risk: "Bajo" },
+            // --- ORIGINAL ---
+            "Sodium Laureth Sulfate": { type: "Cleaning", desc_en: "SLES. Primary anionic surfactant. Cleans effectively.", desc_es: "SLES. Tensioactivo aniónico primario.", risk: "Medio" },
+            "Sodium Lauryl Sulfate": { type: "Cleaning", desc_en: "SLS. Very potent detergent. High irritation potential.", desc_es: "SLS. Detergente muy potente. Irritante.", risk: "Alto" },
+            "Cocamidopropyl Betaine": { type: "Cleaning", desc_en: "Amphoteric surfactant. Softens sulfate harshness.", desc_es: "Tensioactivo anfótero. Suaviza sulfatos.", risk: "Bajo" },
+            "Disodium Cocoamphodiacetate": { type: "Cleaning", desc_en: "Very mild surfactant.", desc_es: "Tensioactivo muy suave.", risk: "Bajo" },
+            "Coco-Glucoside": { type: "Cleaning", desc_en: "Non-ionic vegetable surfactant. Very mild.", desc_es: "Tensioactivo vegetal muy suave.", risk: "Nulo" },
+            "Dimethicone": { type: "Conditioner", desc_en: "Main silicone. Films hair, buildup risk.", desc_es: "Silicona principal. Riesgo acumulación.", risk: "Medio" },
+            "Dimethiconol": { type: "Conditioner", desc_en: "Silicone gum. Repairs split ends.", desc_es: "Goma silicona. Repara puntas.", risk: "Bajo" },
+            "Guar Hydroxypropyltrimonium Chloride": { type: "Conditioner", desc_en: "Cationic Guar. Removes frizz.", desc_es: "Guar catiónico. Quita frizz.", risk: "Bajo" },
+            "Polyquaternium-7": { type: "Conditioner", desc_en: "Antistatic polymer.", desc_es: "Polímero antiestático.", risk: "Bajo" },
+            "Polyquaternium-10": { type: "Conditioner", desc_en: "Cationic cellulose. Smart repair.", desc_es: "Celulosa catiónica. Reparación inteligente.", risk: "Bajo" },
+            "Piroctone Olamine": { type: "Active", desc_en: "Antifungal (Dandruff).", desc_es: "Antifúngico (Caspa).", risk: "Bajo" },
+            "Aloe Barbadensis Leaf Juice": { type: "Active", desc_en: "Aloe Vera. Soothing.", desc_es: "Aloe Vera. Calmante.", risk: "Nulo" },
+            "Tocopheryl Acetate": { type: "Active", desc_en: "Vitamin E.", desc_es: "Vitamina E.", risk: "Nulo" },
+            "Niacinamide": { type: "Active", desc_en: "Vitamin B3.", desc_es: "Vitamina B3.", risk: "Nulo" },
+            "Biotin": { type: "Active", desc_en: "Vitamin B7.", desc_es: "Vitamina B7.", risk: "Nulo" },
+            "Panthenol": { type: "Active", desc_en: "Pro-Vitamin B5.", desc_es: "Pro-Vitamina B5.", risk: "Nulo" },
+            "Arginine": { type: "Active", desc_en: "Amino acid.", desc_es: "Aminoácido.", risk: "Nulo" },
+            "Lysine HCl": { type: "Active", desc_en: "Essential amino acid.", desc_es: "Aminoácido esencial.", risk: "Nulo" },
+            "Ascorbic Acid": { type: "Active", desc_en: "Vitamin C.", desc_es: "Vitamina C.", risk: "Nulo" },
+            "Ceramide NG": { type: "Active", desc_en: "Ceramide.", desc_es: "Ceramida.", risk: "Nulo" },
+            "Hydrolyzed Ceratonia Siliqua Seed Extract": { type: "Active", desc_en: "Carob extract. Peptides.", desc_es: "Extracto Algarrobo. Péptidos.", risk: "Nulo" },
+            "Prunus Amygdalus Dulcis Oil": { type: "Active", desc_en: "Sweet Almond Oil.", desc_es: "Aceite Almendras.", risk: "Nulo" },
+            "Acetum": { type: "Active", desc_en: "Vinegar. Shine.", desc_es: "Vinagre. Brillo.", risk: "Bajo" },
+            "Sodium Chloride": { type: "Control", desc_en: "Salt. Thickener.", desc_es: "Sal. Espesante.", risk: "Bajo" },
+            "Glycerin": { type: "Humectant", desc_en: "Humectant.", desc_es: "Humectante.", risk: "Nulo" },
+            "DMDM Hydantoin": { type: "Preservative", desc_en: "Formaldehyde releaser. Allergen.", desc_es: "Libera formol. Alérgeno.", risk: "Alto" },
+            "Parfum": { type: "Fragrance", desc_en: "Fragrance.", desc_es: "Perfume.", risk: "Medio" },
+            "Sodium Benzoate": { type: "Preservative", desc_en: "Safe preservative.", desc_es: "Conservante seguro.", risk: "Bajo" },
+            "Cocamide DEA": { type: "Thickener", desc_en: "Linked to nitrosamines.", desc_es: "Vinculado a nitrosaminas.", risk: "Alto" },
+            "Sodium Hydroxide": { type: "Control", desc_en: "Caustic soda. pH adjuster.", desc_es: "Sosa Cáustica. Ajustador pH.", risk: "Medio" },
+            "Tetrasodium EDTA": { type: "Control", desc_en: "Chelator.", desc_es: "Quelante.", risk: "Bajo" },
             "Disodium EDTA": { type: "Control", desc_en: "Chelator.", desc_es: "Quelante.", risk: "Bajo" },
-            "Triethylene Glycol": { type: "Solvent", desc_en: "Viscosity reducer and solvent.", desc_es: "Reductor de viscosidad y solvente.", risk: "Medio" },
-            "Propylene Glycol": { type: "Solvent", desc_en: "Humectant and solvent. Penetration enhancer.", desc_es: "Humectante y solvente. Potenciador de penetración.", risk: "Bajo" },
-            "Polysorbate 80": { type: "Emulsifier", desc_en: "Solubilizer for oils and fragrances.", desc_es: "Solubilizante para aceites.", risk: "Bajo" },
 
-            // Preservatives & Fragrance
-            "Sodium Benzoate": { type: "Preservative", desc_en: "Safe antifungal preservative in acidic pH.", desc_es: "Conservante antifúngico seguro en pH ácido.", risk: "Bajo" },
-            "Sodium Salicylate": { type: "Preservative", desc_en: "Salicylic acid salt. Preservative and mildly keratolytic.", desc_es: "Sal del ácido salicílico. Conservante.", risk: "Bajo" },
-            "Potassium Sorbate": { type: "Preservative", desc_en: "Mild preservative, common in food.", desc_es: "Conservante suave, común en alimentos.", risk: "Nulo" },
-            "DMDM Hydantoin": { type: "Preservative", desc_en: "Formaldehyde releaser. High allergy risk.", desc_es: "Liberador de formaldehído. Alto riesgo de alergia.", risk: "Alto" },
-            "Iodopropynyl Butylcarbamate": { type: "Preservative", desc_en: "Potent fungicide. Limited use due to inhalation toxicity.", desc_es: "Fungicida potente. Toxicidad potencial.", risk: "Medio" },
-            "Benzyl Alcohol": { type: "Preservative", desc_en: "Aromatic alcohol. Preservative and fragrance part. Potential allergen.", desc_es: "Alcohol aromático. Conservante y parte de fragancias.", risk: "Medio" },
-            "Parfum": { type: "Fragrance", desc_en: "Synthetic fragrance mix. #1 cause of cosmetic allergies.", desc_es: "Mezcla de fragancias sintéticas. Causa nº1 de alergias.", risk: "Medio" },
-            "Linalool": { type: "Fragrance", desc_en: "Essential oil component (Lavender). Allergen.", desc_es: "Componente de aceites esenciales. Alérgeno.", risk: "Medio" },
-            "Limonene": { type: "Fragrance", desc_en: "Citrus component. Allergen.", desc_es: "Componente cítrico. Alérgeno.", risk: "Medio" },
-            "Hexyl Cinnamal": { type: "Fragrance", desc_en: "Jasmine fragrance. Allergen.", desc_es: "Fragancia de jazmín. Alérgeno.", risk: "Medio" },
-            "Coumarin": { type: "Fragrance", desc_en: "Vanilla/hay scent. Allergen.", desc_es: "Olor a vainilla/heno. Alérgeno.", risk: "Medio" },
-            "Citronellol": { type: "Fragrance", desc_en: "Rose/Geranium scent. Allergen.", desc_es: "Olor a rosa/geranio. Alérgeno.", risk: "Medio" },
-            "CI 61570": { type: "Colorant", desc_en: "Acid Green 25. Synthetic dye.", desc_es: "Verde Ácido 25. Colorante sintético.", risk: "Bajo" }
+            // --- EXPANSION: HIGH RISK PRESERVATIVES & ALLERGENS ---
+            "Methylisothiazolinone": { type: "Preservative", desc_en: "Powerful biocide 'MI'. High contact allergy risk.", desc_es: "Biocida 'MI'. Alto riesgo alergia contacto.", risk: "Alto" },
+            "Methylchloroisothiazolinone": { type: "Preservative", desc_en: "Strong allergen/irritant (MCI).", desc_es: "Fuerte alérgeno/irritante (MCI).", risk: "Alto" },
+            "Phenoxyethanol": { type: "Preservative", desc_en: "Common safe preservative.", desc_es: "Conservante común seguro.", risk: "Bajo" },
+            "Propylparaben": { type: "Preservative", desc_en: "Long-chain paraben. Endocrine concern.", desc_es: "Parabeno cadena larga. Disrupción endocrina.", risk: "Alto" },
+            "Butylparaben": { type: "Preservative", desc_en: "Strong estrogenic concern.", desc_es: "Preocupación estrogénica.", risk: "Alto" },
+            "Methylparaben": { type: "Preservative", desc_en: "Safe short-chain paraben.", desc_es: "Parabeno corto seguro.", risk: "Bajo" },
+            "Ethylparaben": { type: "Preservative", desc_en: "Safe short-chain paraben.", desc_es: "Parabeno corto seguro.", risk: "Bajo" },
+            "Triclosan": { type: "Preservative", desc_en: "Banned in soaps USA. Thyroid concern.", desc_es: "Prohibido jabones USA. Tiroides.", risk: "Alto" },
+            "BHT": { type: "Preservative", desc_en: "Antioxidant. Lung concern at high dose.", desc_es: "Antioxidante. Pulmones dosis alta.", risk: "Medio" },
+            "Geraniol": { type: "Fragrance", desc_en: "Rose allergen.", desc_es: "Alérgeno rosa.", risk: "Medio" },
+            "Citral": { type: "Fragrance", desc_en: "Lemon allergen.", desc_es: "Alérgeno limón.", risk: "Medio" },
+
+            // --- EXPANSION: SURFACTANTS (Common & Alternatives) ---
+            "Ammonium Lauryl Sulfate": { type: "Cleaning", desc_en: "ALS. Strong cleanser.", desc_es: "ALS. Limpiador fuerte.", risk: "Alto" },
+            "Ammonium Laureth Sulfate": { type: "Cleaning", desc_en: "ALES. Milder but strong.", desc_es: "ALES. Más suave pero fuerte.", risk: "Medio" },
+            "Sodium C14-16 Olefin Sulfonate": { type: "Cleaning", desc_en: "Strong 'sulfate-free' surfactant. Drying.", desc_es: "Fuerte 'sin sulfatos'. Secante.", risk: "Medio" },
+            "Sodium Cocoyl Isethionate": { type: "Cleaning", desc_en: "SCI. 'Baby Foam'. Mild.", desc_es: "SCI. Espuma suave.", risk: "Nulo" },
+            "Lauryl Glucoside": { type: "Cleaning", desc_en: "Mild sugar surfactant.", desc_es: "Suave derivado azúcar.", risk: "Nulo" },
+            "Decyl Glucoside": { type: "Cleaning", desc_en: "Gentle sugar surfactant.", desc_es: "Suave derivado azúcar.", risk: "Nulo" },
+
+            // --- EXPANSION: ALCOHOLS ---
+            "Alcohol Denat": { type: "Solvent", desc_en: "Drying alcohol.", desc_es: "Alcohol secante.", risk: "Alto" },
+            "Isopropyl Alcohol": { type: "Solvent", desc_en: "Rubbing alcohol. Harsh.", desc_es: "Alcohol isopropílico. Agresivo.", risk: "Alto" },
+            "Cetyl Alcohol": { type: "Emollient", desc_en: "Fatty alcohol. Moisturizing.", desc_es: "Alcohol graso. Hidratante.", risk: "Nulo" },
+            "Stearyl Alcohol": { type: "Emollient", desc_en: "Fatty alcohol. Softening.", desc_es: "Alcohol graso. Suavizante.", risk: "Nulo" },
+            "Cetearyl Alcohol": { type: "Emollient", desc_en: "Fatty alcohol mix.", desc_es: "Mezcla alcohol graso.", risk: "Nulo" },
+
+            // --- EXPANSION: ACTIVES & SILICONES ---
+            "Hydrolyzed Keratin": { type: "Active", desc_en: "Protein filler.", desc_es: "Relleno proteína.", risk: "Nulo" },
+            "Hydrolyzed Wheat Protein": { type: "Active", desc_en: "Volume and moisture.", desc_es: "Volumen y humedad.", risk: "Nulo" },
+            "Argania Spinosa Kernel Oil": { type: "Active", desc_en: "Argan Oil. Shine.", desc_es: "Aceite Argán. Brillo.", risk: "Nulo" },
+            "Butyrospermum Parkii Butter": { type: "Active", desc_en: "Shea Butter. Heavy moisture.", desc_es: "Karité. Hidratación pesada.", risk: "Nulo" },
+            "Zinc Pyrithione": { type: "Active", desc_en: "Anti-dandruff. Restricted.", desc_es: "Anticaspa. Restringido.", risk: "Medio" },
+            "Salicylic Acid": { type: "Active", desc_en: "BHA Exfoliant.", desc_es: "Exfoliante BHA.", risk: "Bajo" },
+            "Amodimethicone": { type: "Conditioner", desc_en: "Smart silicone. Buildup risk.", desc_es: "Silicona inteligente. Acumulación.", risk: "Medio" },
+            "Cyclopentasiloxane": { type: "Solvent", desc_en: "Volatile silicone. Light.", desc_es: "Silicona volátil. Ligera.", risk: "Nulo" },
+
+            // --- NEW ADDITIONS (REQUESTED) ---
+            "Sodium Citrate": { type: "Control", desc_en: "pH adjuster and buffer.", desc_es: "Ajustador de pH y tampón.", risk: "Nulo" },
+            "Sodium Xylenesulfonate": { type: "Control", desc_en: "Thickener and solubilizer. Not a cleaner.", desc_es: "Espesante y solubilizante. No limpia.", risk: "Bajo" },
+            "Glycol Distearate": { type: "Emollient", desc_en: "Pearlizing agent. Adds visual shine.", desc_es: "Agente perlante. Da brillo visual.", risk: "Nulo" },
+            "Citric Acid": { type: "Control", desc_en: "Natural pH adjuster. Closes cuticles.", desc_es: "Ajustador pH natural. Cierra cutículas.", risk: "Nulo" },
+            "Sodium Salicylate": { type: "Preservative", desc_en: "Preservative salt. Mild anti-inflammatory.", desc_es: "Sal conservante. Antiinflamatorio suave.", risk: "Bajo" },
+            "Histidine": { type: "Active", desc_en: "Amino acid. Antioxidant protection.", desc_es: "Aminoácido. Protección antioxidante.", risk: "Nulo" },
+            "Hexyl Cinnamal": { type: "Fragrance", desc_en: "Chamomile-like scent. Common allergen.", desc_es: "Aroma manzanilla. Alérgeno común.", risk: "Medio" },
         };
 
-        // --- DATA NORMALIZATION ---
-        const nameMap = {
-            "lauril eter sulfate": "Sodium Laureth Sulfate",
-            "acetum": "Acetum"
-        };
-
+        // --- DATA NORMALIZATION & SETUP ---
+        const nameMap = { "lauril eter sulfate": "Sodium Laureth Sulfate", "acetum": "Acetum", "water": "Aqua", "eau": "Aqua" };
         function normalizeIngredient(name) {
             const trimmed = name.trim();
-            for (let key in nameMap) {
-                if (key.toLowerCase() === trimmed.toLowerCase()) return nameMap[key];
-            }
+            for (let key in nameMap) if (key.toLowerCase() === trimmed.toLowerCase()) return nameMap[key];
+            
+            // Try Case Insensitive Match in DB
+            const dbKey = Object.keys(ingredientDB).find(k => k.toLowerCase() === trimmed.toLowerCase());
+            if (dbKey) return dbKey;
+
             return trimmed.replace(/\w\S*/g, (w) => (w.replace(/^\w/, (c) => c.toUpperCase())));
         }
 
@@ -475,47 +534,55 @@
         const rawS2 = "Aqua. Lauril eter sulfate. Disodium cocoamphodiacetate. Cocamide DEA. Acetum. Prunus armeniaca fruit extract. Prunus persica fruit extract. Pyrus malus fruit extract. Coco-glucoside. Glyceryl oleate. Glycerin. Hydrolyzed ceratonia siliqua seed extract. Zea mays starch. Sodium lactate. Polyquaternium-7. DMDM Hydantoin. Iodopropynyl butylcarbamate. Polysorbate 80. Potassium sorbate. Sodium benzoate. Guar hydroxypropyltrimonium chloride. Parfum. Citric acid. Linalool. Limonene. Citronellol.";
         const rawS3 = "Aqua, Sodium Laureth Sulfate, Cocamidopropyl Betaine, Sodium Chloride, Parfum, Sodium Benzoate, Citric Acid, Polyquaternium-10, Disodium EDTA, Arginine, Lysine HCl, Panthenol, Niacinamide, Ascorbic Acid, Tocopheryl Acetate, Biotin, Ceramide NG, PPG-6, Sodium Hydroxide, Hexyl Cinnamal, Limonene, Linalool, CI 61570";
 
-        const parseList = (str) => str.split(/[,.]/).map(s => s.trim()).filter(s => s.length > 0).map(normalizeIngredient);
+        const parseList = (str) => str.split(/[,.\n]/).map(s => s.trim()).filter(s => s.length > 0).map(normalizeIngredient);
 
-        const shampoo1 = parseList(rawS1);
-        const shampoo2 = parseList(rawS2);
-        const shampoo3 = parseList(rawS3);
-        const allIngredients = Array.from(new Set([...shampoo1, ...shampoo2, ...shampoo3])).sort();
+        let shampoo1 = parseList(rawS1);
+        let shampoo2 = parseList(rawS2);
+        let shampoo3 = parseList(rawS3);
+        let userShampoo = []; 
 
-        const comparisonData = allIngredients.map(ing => {
-            let info = ingredientDB[ing];
-            if (!info) {
-                const key = Object.keys(ingredientDB).find(k => k.toLowerCase() === ing.toLowerCase());
-                info = key ? ingredientDB[key] : { type: "Unknown", desc_en: "Not found in extended DB.", desc_es: "No encontrado.", risk: "Unknown" };
-                if(key) ing = key;
-            }
+        let allIngredients = Array.from(new Set([...shampoo1, ...shampoo2, ...shampoo3])).sort();
+        let comparisonData = [];
 
-            return {
-                name: ing,
-                type: info.type,
-                desc_en: info.desc_en,
-                desc_es: info.desc_es,
-                risk: info.risk,
-                inS1: shampoo1.map(s=>s.toLowerCase()).includes(ing.toLowerCase()),
-                inS2: shampoo2.map(s=>s.toLowerCase()).includes(ing.toLowerCase()),
-                inS3: shampoo3.map(s=>s.toLowerCase()).includes(ing.toLowerCase())
-            };
-        });
+        function updateComparisonData() {
+            let set = new Set([...shampoo1, ...shampoo2, ...shampoo3]);
+            if(userShampoo.length > 0) userShampoo.forEach(i => set.add(i));
+            allIngredients = Array.from(set).sort();
+
+            comparisonData = allIngredients.map(ing => {
+                let info = ingredientDB[ing];
+                if (!info) {
+                    const key = Object.keys(ingredientDB).find(k => k.toLowerCase() === ing.toLowerCase());
+                    info = key ? ingredientDB[key] : { type: "Unknown", desc_en: "Not found in expanded DB.", desc_es: "No encontrado.", risk: "Unknown" };
+                    if(key) ing = key;
+                }
+
+                return {
+                    name: ing,
+                    type: info.type,
+                    desc_en: info.desc_en,
+                    desc_es: info.desc_es,
+                    risk: info.risk,
+                    inS1: shampoo1.map(s=>s.toLowerCase()).includes(ing.toLowerCase()),
+                    inS2: shampoo2.map(s=>s.toLowerCase()).includes(ing.toLowerCase()),
+                    inS3: shampoo3.map(s=>s.toLowerCase()).includes(ing.toLowerCase()),
+                    inUser: userShampoo.map(s=>s.toLowerCase()).includes(ing.toLowerCase())
+                };
+            });
+        }
+        updateComparisonData();
 
         // --- LANGUAGE LOGIC ---
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'es' : 'en';
             updateStaticText();
-            renderComparisonTable(currentFilterData); // Re-render table with new lang
-            renderEncyclopedia(currentSearchTerm);   // Re-render encyclopedia
-            renderCharts(); // Update charts legend/labels
+            renderComparisonTable(currentFilterData); 
+            renderEncyclopedia(document.getElementById('ingredientSearch').value); 
+            renderCharts(); 
         }
 
         function updateStaticText() {
-            // Update Toggle Button
             document.getElementById('lang-display').textContent = currentLang.toUpperCase();
-            
-            // Update Data-i18n elements
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (translations[currentLang][key]) {
@@ -527,28 +594,107 @@
                     }, 200);
                 }
             });
+            // Re-generate verdict if user has data
+            if(userShampoo.length > 0) generateVerdict(userShampoo);
         }
 
         // --- UI LOGIC ---
-        let currentFilterData = comparisonData; // store state for lang switch
-        let currentSearchTerm = '';
+        let currentFilterData = comparisonData; 
 
         function navigateTo(sectionId) {
             document.querySelectorAll('section').forEach(el => el.classList.add('hidden'));
             document.getElementById(sectionId).classList.remove('hidden');
             
             document.querySelectorAll('.nav-btn').forEach(btn => {
-                if (btn.dataset.target === sectionId) {
+                if (btn.dataset.target === sectionId || (sectionId==='analyze' && btn.dataset.i18n === 'nav_analyze_yours')) {
                     btn.classList.remove('tab-inactive');
                     btn.classList.add('tab-active');
+                    if(sectionId === 'analyze') btn.classList.add('text-teal-700');
                 } else {
                     btn.classList.add('tab-inactive');
                     btn.classList.remove('tab-active');
+                    btn.classList.remove('text-teal-700');
                 }
             });
 
             document.getElementById('mobile-nav').classList.add('hidden');
             if (sectionId === 'dashboard') renderCharts();
+        }
+
+        // --- USER ANALYSIS LOGIC ---
+        function analyzeUserShampoo() {
+            const input = document.getElementById('userIngredients').value;
+            if(!input.trim()) return;
+
+            userShampoo = parseList(input);
+            updateComparisonData();
+            currentFilterData = comparisonData; // Reset filter state
+
+            // Show Results
+            document.getElementById('userAnalysisResult').classList.remove('hidden');
+            generateVerdict(userShampoo);
+
+            // Update UI elements for User
+            document.getElementById('colUserHeader').classList.remove('hidden');
+            document.getElementById('btnUserFilter').classList.remove('hidden');
+            
+            renderComparisonTable(comparisonData);
+            renderCharts();
+        }
+
+        function generateVerdict(list) {
+            const container = document.getElementById('dynamicVerdictText');
+            container.innerHTML = '';
+
+            const detected = [];
+            let hasSulfates = false;
+            let hasSilicones = false;
+            let hasBadAlcohols = false;
+            let riskyPreservatives = [];
+            let actives = [];
+
+            list.forEach(ing => {
+                const info = ingredientDB[ing] || ingredientDB[Object.keys(ingredientDB).find(k=>k.toLowerCase()===ing.toLowerCase())];
+                if(info) {
+                    detected.push(ing);
+                    if(info.type === 'Cleaning' && (info.risk === 'Alto' || info.risk === 'Medio')) hasSulfates = true;
+                    if(info.type === 'Conditioner' && ing.includes('methicone')) hasSilicones = true;
+                    if(info.type === 'Solvent' && info.risk === 'Alto') hasBadAlcohols = true;
+                    if(info.type === 'Preservative' && info.risk === 'Alto') riskyPreservatives.push(ing);
+                    if(info.type === 'Active') actives.push(ing);
+                }
+            });
+
+            // Populate List
+            const listContainer = document.getElementById('detectedIngredientsList');
+            listContainer.innerHTML = list.map(i => {
+                const info = ingredientDB[i] || ingredientDB[Object.keys(ingredientDB).find(k=>k.toLowerCase()===i.toLowerCase())];
+                const riskColor = info ? (info.risk === 'Alto' ? 'text-red-600 font-bold' : 'text-stone-600') : 'text-gray-400';
+                return `<li class="border-b border-stone-100 py-1 flex justify-between">
+                            <span>${i}</span> 
+                            <span class="${riskColor}">${info ? info.type : 'Unknown'}</span>
+                        </li>`;
+            }).join('');
+
+            // Verdict Generation (Bilingual Support)
+            let text = "";
+            const t = currentLang === 'en' ? 
+                { soap: "Strong Cleansing:", soap_d: "Contains sulfates. Strips grease.", gentle: "Gentle/Low-Poo:", gentle_d: "No strong sulfates. Curly friendly.", sil: "Silicones:", sil_d: "Provides slip. Buildup risk.", warn: "Warning:", warn_d: "High-risk allergens detected", alc: "Drying Alcohols:", alc_d: "May dry hair.", act: "Active Boost:", act_d: "Enriched with actives." } :
+                { soap: "Limpieza Fuerte:", soap_d: "Contiene sulfatos. Elimina grasa agresivamente.", gentle: "Suave/Low-Poo:", gentle_d: "Sin sulfatos fuertes. Apto Curly.", sil: "Siliconas:", sil_d: "Aportan suavidad. Riesgo acumulación.", warn: "Advertencia:", warn_d: "Alérgenos de alto riesgo detectados", alc: "Alcoholes Secantes:", alc_d: "Puede resecar el cabello.", act: "Boost Activos:", act_d: "Enriquecido con activos." };
+
+            if(hasSulfates) text += `<p><i class="fas fa-soap text-blue-500"></i> <strong>${t.soap}</strong> ${t.soap_d}</p>`;
+            else text += `<p><i class="fas fa-leaf text-green-500"></i> <strong>${t.gentle}</strong> ${t.gentle_d}</p>`;
+
+            if(hasSilicones) text += `<p><i class="fas fa-layer-group text-amber-500"></i> <strong>${t.sil}</strong> ${t.sil_d}</p>`;
+            
+            if(riskyPreservatives.length > 0) {
+                text += `<p class="text-red-700 bg-red-50 p-2 rounded"><i class="fas fa-exclamation-triangle"></i> <strong>${t.warn}</strong> ${t.warn_d} (${riskyPreservatives.join(', ')}).</p>`;
+            }
+
+            if(hasBadAlcohols) text += `<p class="text-amber-700"><i class="fas fa-wine-bottle"></i> <strong>${t.alc}</strong> ${t.alc_d}</p>`;
+            if(actives.length > 0) text += `<p><i class="fas fa-magic text-purple-500"></i> <strong>${t.act}</strong> ${t.act_d}</p>`;
+
+            container.innerHTML = text;
         }
 
         // --- RENDER TABLE ---
@@ -558,25 +704,18 @@
             tbody.innerHTML = '';
 
             data.forEach(item => {
-                let riskIcon = '';
-                if(item.risk === 'Alto') riskIcon = '<i class="fas fa-exclamation-circle text-red-500 ml-1"></i>';
-
+                let riskIcon = item.risk === 'Alto' ? '<i class="fas fa-exclamation-circle text-red-500 ml-1"></i>' : '';
                 const desc = currentLang === 'en' ? item.desc_en : item.desc_es;
+                const userCell = userShampoo.length ? `<td class="px-6 py-4 text-center bg-teal-50 border-l border-teal-100">${item.inUser ? '<i class="fas fa-check text-teal-600"></i>' : '·'}</td>` : '';
 
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="px-6 py-4 font-medium text-stone-900">
-                        ${item.name} ${riskIcon}
-                        <div class="text-xs text-stone-400 md:hidden">${desc}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-stone-500 text-xs">
-                        <span class="px-2 py-1 rounded-full bg-stone-100 text-stone-700 font-semibold">${item.type}</span>
-                    </td>
+                tbody.innerHTML += `<tr>
+                    <td class="px-6 py-4 font-medium text-stone-900">${item.name} ${riskIcon} <div class="text-xs text-stone-400 md:hidden">${desc}</div></td>
+                    <td class="px-6 py-4 text-xs"><span class="px-2 py-1 rounded bg-stone-100 text-stone-700 font-semibold">${item.type}</span></td>
                     <td class="px-6 py-4 text-center">${item.inS1 ? '<i class="fas fa-check text-blue-500"></i>' : '<span class="text-stone-200">·</span>'}</td>
                     <td class="px-6 py-4 text-center">${item.inS2 ? '<i class="fas fa-check text-green-500"></i>' : '<span class="text-stone-200">·</span>'}</td>
                     <td class="px-6 py-4 text-center">${item.inS3 ? '<i class="fas fa-check text-purple-500"></i>' : '<span class="text-stone-200">·</span>'}</td>
-                `;
-                tbody.appendChild(tr);
+                    ${userCell}
+                </tr>`;
             });
         }
 
@@ -585,18 +724,18 @@
             if (mode === 'all') filtered = comparisonData;
             if (mode === 'shared_all') filtered = comparisonData.filter(i => i.inS1 && i.inS2 && i.inS3);
             if (mode === 'actives') filtered = comparisonData.filter(i => i.type === 'Active' || i.type === 'Humectant');
-            if (mode === 'unique_1') filtered = comparisonData.filter(i => i.inS1 && !i.inS2 && !i.inS3);
-            if (mode === 'unique_2') filtered = comparisonData.filter(i => !i.inS1 && i.inS2 && !i.inS3);
-            if (mode === 'unique_3') filtered = comparisonData.filter(i => !i.inS1 && !i.inS2 && i.inS3);
+            if (mode === 'unique_1') filtered = comparisonData.filter(i => i.inS1 && !i.inS2 && !i.inS3 && !i.inUser);
+            if (mode === 'unique_2') filtered = comparisonData.filter(i => !i.inS1 && i.inS2 && !i.inS3 && !i.inUser);
+            if (mode === 'unique_3') filtered = comparisonData.filter(i => !i.inS1 && !i.inS2 && i.inS3 && !i.inUser);
+            if (mode === 'user') filtered = comparisonData.filter(i => i.inUser && !i.inS1 && !i.inS2 && !i.inS3);
             
             document.querySelectorAll('.filter-btn').forEach(btn => btn.style.opacity = '0.6');
             event.target.style.opacity = '1';
             renderComparisonTable(filtered);
         }
 
-        // --- RENDER ENCYCLOPEDIA ---
+        // --- RENDER ENCYCLOPEDIA (Original Style Restored) ---
         function renderEncyclopedia(filterText = '') {
-            currentSearchTerm = filterText;
             const container = document.getElementById('ingredientCards');
             container.innerHTML = '';
             
@@ -628,6 +767,7 @@
                         ${item.inS1 ? '<span class="text-blue-600 bg-blue-50 px-2 py-1 rounded">Ch1</span>' : ''}
                         ${item.inS2 ? '<span class="text-green-600 bg-green-50 px-2 py-1 rounded">Ch2</span>' : ''}
                         ${item.inS3 ? '<span class="text-purple-600 bg-purple-50 px-2 py-1 rounded">Ch3</span>' : ''}
+                        ${item.inUser ? '<span class="text-teal-600 bg-teal-50 px-2 py-1 rounded">Yours</span>' : ''}
                     </div>
                 `;
                 container.appendChild(card);
@@ -643,101 +783,173 @@
         function renderCharts() {
             // Recalculate counts based on FULL DB
             const countTypes = (list) => {
-                let c = { Limpieza: 0, Acondicionador: 0, Activo: 0, Otros: 0 };
-                list.forEach(name => {
-                    let nName = normalizeIngredient(name);
-                    let info = ingredientDB[nName];
-                    if(!info) {
-                        const key = Object.keys(ingredientDB).find(k => k.toLowerCase() === nName.toLowerCase());
-                        if(key) info = ingredientDB[key];
-                    }
-                    if (info) {
-                        if (info.type === 'Cleaning') c.Limpieza++;
-                        else if (['Conditioner', 'Humectant', 'Emollient'].includes(info.type)) c.Acondicionador++;
-                        else if (info.type === 'Active') c.Activo++;
-                        else c.Otros++;
-                    }
-                });
-                return c;
+            let c = { Limpieza: 0, Acondicionador: 0, Activo: 0, Otros: 0 };
+            list.forEach(name => {
+            let nName = normalizeIngredient(name);
+            let info = ingredientDB[nName] || ingredientDB[Object.keys(ingredientDB).find(k=>k.toLowerCase()===nName.toLowerCase())];
+            if (info) {
+            if (info.type === 'Cleaning') c.Limpieza++;
+            else if (['Conditioner', 'Humectant', 'Emollient'].includes(info.type)) c.Acondicionador++;
+            else if (info.type === 'Active') c.Activo++;
+            else c.Otros++;
+            }
+            });
+            return c;
             };
 
             const s3Counts = countTypes(shampoo3);
+            const userCounts = userShampoo.length ? countTypes(userShampoo) : null;
             
             // Labels based on lang
             const labelsComp = currentLang === 'en' 
-                ? ['Cleaning/Detergency', 'Conditioning/Hydration', 'Real Actives', 'Excipients/Perfume']
-                : ['Limpieza/Detergencia', 'Acondicionamiento/Hidratación', 'Activos Reales', 'Excipientes/Perfume'];
+            ? ['Cleaning/Detergency', 'Conditioning/Hydration', 'Real Actives', 'Excipients/Perfume']
+            : ['Limpieza/Detergencia', 'Acondicionamiento/Hidratación', 'Activos Reales', 'Excipientes/Perfume'];
 
             const ctx1 = document.getElementById('compositionChart').getContext('2d');
             if (compositionChartInstance) compositionChartInstance.destroy();
 
+            // Prepare composition datasets (use underlying values for logic, but allow placeholder display when empty)
+            let datasetsComp = [{
+            label: currentLang === 'en' ? 'Shampoo 3 (Benchmark)' : 'Champú 3 (Referencia)',
+            data: [s3Counts.Limpieza, s3Counts.Acondicionador, s3Counts.Activo, s3Counts.Otros],
+            backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#e5e7eb'],
+            borderWidth: 0,
+            hoverOffset: 10
+            }];
+
+            if(userCounts) {
+            datasetsComp.push({
+                label: currentLang === 'en' ? 'Yours' : 'Tuyo',
+                data: [userCounts.Limpieza, userCounts.Acondicionador, userCounts.Activo, userCounts.Otros],
+                backgroundColor: ['#991b1b', '#b45309', '#065f46', '#4b5563'],
+                borderWidth: 4,
+                borderColor: '#fff'
+            });
+            }
+
+            // If all composition values are zero, show a neutral placeholder and a title so the chart area is visible
+            const totalCompValues = datasetsComp.reduce((sum, ds) => sum + ds.data.reduce((a,b)=>a+b,0), 0);
+            const compTitleText = currentLang === 'en' ? 'No detectable functional composition' : 'No se detectó composición funcional';
+            const compOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 12, font: {size: 11} } },
+                title: { display: totalCompValues === 0, text: compTitleText, color: '#6b7280', font: { size: 12 }, padding: { bottom: 6 } }
+            }
+            };
+
+            // If all zeros, replace with neutral equal slices so the doughnut renders visibly (keeps semantics by showing title)
+            if (totalCompValues === 0) {
             compositionChartInstance = new Chart(ctx1, {
                 type: 'doughnut',
                 data: {
-                    labels: labelsComp,
-                    datasets: [{
-                        data: [s3Counts.Limpieza, s3Counts.Acondicionador, s3Counts.Activo, s3Counts.Otros],
-                        backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#e5e7eb'],
-                        borderWidth: 0,
-                        hoverOffset: 10
-                    }]
+                labels: labelsComp,
+                datasets: [{
+                    label: compTitleText,
+                    data: [1,1,1,1],
+                    backgroundColor: ['#e5e7eb','#e5e7eb','#e5e7eb','#e5e7eb'],
+                    borderWidth: 0
+                }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: {size: 11} } } }
-                }
+                options: compOptions
             });
+            } else {
+            compositionChartInstance = new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                labels: labelsComp,
+                datasets: datasetsComp
+                },
+                options: compOptions
+            });
+            }
 
             // Enhanced Score Calc
             const calculateScore = (list) => {
-                let score = 0;
-                list.forEach(raw => {
-                     let name = normalizeIngredient(raw);
-                     let key = Object.keys(ingredientDB).find(k => k.toLowerCase() === name.toLowerCase());
-                     if(key) {
-                         const i = ingredientDB[key];
-                         if(i.risk === 'Alto') score += 5;
-                         if(i.risk === 'Medio') score += 2;
-                         if(i.type === 'Active') score -= 1; 
-                     }
-                });
-                return Math.max(0, score);
+            let score = 0;
+            list.forEach(raw => {
+                 let name = normalizeIngredient(raw);
+                 let key = Object.keys(ingredientDB).find(k => k.toLowerCase() === name.toLowerCase());
+                 if(key) {
+                 const i = ingredientDB[key];
+                 if(i.risk === 'Alto') score += 5;
+                 if(i.risk === 'Medio') score += 2;
+                 if(i.type === 'Active') score += 0; 
+                 }
+            });
+            return Math.max(0, score);
             };
 
             const scores = [calculateScore(shampoo1), calculateScore(shampoo2), calculateScore(shampoo3)];
             const labelIrr = currentLang === 'en' ? 'Toxic/Irritant Load Index' : 'Índice de Carga Tóxica/Irritante';
             const labelShampoos = currentLang === 'en' ? ['Shampoo 1', 'Shampoo 2', 'Shampoo 3'] : ['Champú 1', 'Champú 2', 'Champú 3'];
+            const bgColors = ['#93c5fd', '#86efac', '#d8b4fe'];
+            
+            if(userShampoo.length) {
+            labelShampoos.push(currentLang === 'en' ? 'Yours' : 'Tuyo');
+            scores.push(calculateScore(userShampoo));
+            bgColors.push('#14b8a6'); // Teal
+            }
 
             const ctx2 = document.getElementById('irritationChart').getContext('2d');
             if (irritationChartInstance) irritationChartInstance.destroy();
 
-            irritationChartInstance = new Chart(ctx2, {
-                type: 'bar',
-                data: {
-                    labels: labelShampoos,
-                    datasets: [{
-                        label: labelIrr,
-                        data: scores,
-                        backgroundColor: ['#93c5fd', '#86efac', '#d8b4fe'],
-                        borderColor: ['#3b82f6', '#22c55e', '#a855f7'],
-                        borderWidth: 2,
-                        borderRadius: 6
-                    }]
+            // If all scores are zero, ensure visible chart area by showing y-axis and a small suggestedMax
+            const allZeroScores = scores.every(s => s === 0);
+            const barOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                beginAtZero: true,
+                display: true,
+                grid: { color: allZeroScores ? '#f3f4f6' : undefined },
+                ticks: { display: !allZeroScores ? true : true, color: '#6b7280' },
+                suggestedMax: allZeroScores ? 5 : undefined
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true, display: false }, x: { grid: {display: false} } },
-                    plugins: { legend: { display: false } }
+                x: { grid: { display: false } }
+            },
+            plugins: { 
+                legend: { display: false },
+                title: {
+                display: allZeroScores,
+                text: allZeroScores ? (currentLang === 'en' ? 'No toxic/irritant load detected' : 'No se detectó carga tóxica/irritante') : '',
+                color: '#6b7280',
+                padding: { bottom: 6 }
+                },
+                tooltip: {
+                callbacks: {
+                    label: function(context) {
+                    // always show the real numeric score (which may be 0)
+                    const val = scores[context.dataIndex] ?? context.parsed.y ?? context.parsed;
+                    return (currentLang === 'en' ? labelIrr + ': ' : labelIrr + ': ') + val;
+                    }
                 }
+                }
+            }
+            };
+
+            irritationChartInstance = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: labelShampoos,
+                datasets: [{
+                label: labelIrr,
+                data: scores,
+                backgroundColor: bgColors,
+                borderWidth: 0,
+                borderRadius: 6
+                }]
+            },
+            options: barOptions
             });
         }
 
         // Init
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('mobile-menu-btn').addEventListener('click', () => {
-                document.getElementById('mobile-nav').classList.toggle('hidden');
+            document.getElementById('mobile-nav').classList.toggle('hidden');
             });
             updateStaticText(); // Load English defaults
             renderCharts();

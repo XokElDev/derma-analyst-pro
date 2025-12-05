@@ -779,7 +779,7 @@
             const container = document.getElementById('ingredientCards');
             container.innerHTML = '';
             
-            const filtered = comparisonData.filter(item => {
+            const filtered = ingredientDB.filter(item => {
                 const desc = currentLang === 'en' ? item.desc_en : item.desc_es;
                 return item.name.toLowerCase().includes(filterText.toLowerCase()) || 
                        item.type.toLowerCase().includes(filterText.toLowerCase()) ||
@@ -1001,6 +1001,7 @@
 </body>
 
 </html>
+
 
 
 

@@ -779,14 +779,26 @@
             const container = document.getElementById('ingredientCards');
             container.innerHTML = '';
             
-            const filtered = ingredientDB.filter(item => {
+            // Get ALL keys from ingredientDB
+            const allDbIngredients = Object.keys(ingredientDB).sort();
+
+            const filtered = allDbIngredients.filter(key => {
+                const item = ingredientDB[key];
                 const desc = currentLang === 'en' ? item.desc_en : item.desc_es;
-                return item.name.toLowerCase().includes(filterText.toLowerCase()) || 
+                return key.toLowerCase().includes(filterText.toLowerCase()) || 
                        item.type.toLowerCase().includes(filterText.toLowerCase()) ||
                        desc.toLowerCase().includes(filterText.toLowerCase());
             });
 
-            filtered.forEach(item => {
+            filtered.forEach(key => {
+                const item = ingredientDB[key];
+                
+                // Calculate Badges on the fly
+                const inS1 = shampoo1.some(s => s.toLowerCase() === key.toLowerCase());
+                const inS2 = shampoo2.some(s => s.toLowerCase() === key.toLowerCase());
+                const inS3 = shampoo3.some(s => s.toLowerCase() === key.toLowerCase());
+                const inUser = userShampoo.some(s => s.toLowerCase() === key.toLowerCase());
+
                 let riskColor = 'bg-stone-100 text-stone-600';
                 if(item.risk === 'Alto') riskColor = 'bg-red-100 text-red-800 border-red-200';
                 if(item.risk === 'Medio') riskColor = 'bg-amber-100 text-amber-800 border-amber-200';
@@ -798,16 +810,16 @@
                 card.className = 'bg-white p-5 rounded-lg border border-stone-200 hover:shadow-md transition-shadow flex flex-col h-full';
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-2">
-                        <h4 class="font-bold text-stone-800 text-lg leading-tight">${item.name}</h4>
+                        <h4 class="font-bold text-stone-800 text-lg leading-tight">${key}</h4>
                         <span class="text-xs px-2 py-1 rounded-full border ${riskColor} font-semibold shrink-0 ml-2">${item.risk}</span>
                     </div>
                     <span class="text-xs font-bold tracking-wide text-stone-400 uppercase mb-3">${item.type}</span>
                     <p class="text-stone-600 text-sm leading-relaxed mb-4 flex-grow">${desc}</p>
                     <div class="flex gap-1 mt-auto pt-3 border-t border-stone-100 text-[10px] uppercase font-bold text-stone-400">
-                        ${item.inS1 ? '<span class="text-blue-600 bg-blue-50 px-2 py-1 rounded">Ch1</span>' : ''}
-                        ${item.inS2 ? '<span class="text-green-600 bg-green-50 px-2 py-1 rounded">Ch2</span>' : ''}
-                        ${item.inS3 ? '<span class="text-purple-600 bg-purple-50 px-2 py-1 rounded">Ch3</span>' : ''}
-                        ${item.inUser ? '<span class="text-teal-600 bg-teal-50 px-2 py-1 rounded">Yours</span>' : ''}
+                        ${inS1 ? '<span class="text-blue-600 bg-blue-50 px-2 py-1 rounded">Ch1</span>' : ''}
+                        ${inS2 ? '<span class="text-green-600 bg-green-50 px-2 py-1 rounded">Ch2</span>' : ''}
+                        ${inS3 ? '<span class="text-purple-600 bg-purple-50 px-2 py-1 rounded">Ch3</span>' : ''}
+                        ${inUser ? '<span class="text-teal-600 bg-teal-50 px-2 py-1 rounded">Yours</span>' : ''}
                     </div>
                 `;
                 container.appendChild(card);
@@ -1001,6 +1013,7 @@
 </body>
 
 </html>
+
 
 
 
